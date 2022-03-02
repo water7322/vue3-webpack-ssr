@@ -47,7 +47,7 @@ module.exports = defineConfig({
 
         webpackConfig.plugin('limit').use(
             new webpack.optimize.LimitChunkCountPlugin({
-                maxChunks: 1
+                maxChunks: 10
             })
         );
     }

@@ -1,19 +1,20 @@
 const path = require('path');
 const fs = require('fs');
-const express = require('express');
+const koa = require('koa');
+const koaStatic = require('koa-static');
 const { renderToString } = require('@vue/server-renderer');
 const manifest = require('./dist/server/ssr-manifest.json');
 
-const server = express();
+const server = new koa();
 
 const appPath = path.join(__dirname, './dist', 'server', manifest['app.js']);
 const createApp = require(appPath).default;
 
-server.use(express.static(path.resolve(__dirname, './dist/client')));
-server.get('*', async (req, res) => {
+server.use(koaStatic(path.resolve(__dirname, './dist/client')));
+server.use(async (ctx, next) => {
     const { app, router } = createApp();
 
-    await router.push(req.url);
+    await router.push(ctx.url);
     await router.isReady();
 
     const appContent = await renderToString(app);
@@ -21,12 +22,12 @@ server.get('*', async (req, res) => {
     fs.readFile(path.join(__dirname, './dist/client/index.html'), (err, html) => {
         if (err) throw err;
         html = html.toString().replace('<div id="app">', `<div id="app">${appContent}`);
-        res.setHeader('Content-Type', 'text/html');
-        res.end(html);
+        ctx.set('Content-Type', 'text/html');
+        ctx.body = html;
     });
 });
 
-const port = 3002;
+const port = 3001;
 server.listen(port, () => {
     console.log(`You can navigate to http://localhost:${port}`);
 });
