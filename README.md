@@ -15,6 +15,11 @@ yarn serve
 yarn build
 ```
 
+### build后启动服务
+```
+yarn server
+```
+
 ### Lints and fixes files
 ```
 yarn lint
